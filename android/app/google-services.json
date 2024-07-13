@@ -1,0 +1,83 @@
+{
+  "project_info": {
+    "project_number": "1092463147949",
+    "firebase_url": "https://appapretasteorg.firebaseio.com",
+    "project_id": "appapretasteorg",
+    "storage_bucket": "appapretasteorg.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1092463147949:android:866401f1c960f36e70ff24",
+        "android_client_info": {
+          "package_name": "com.apretaste.apretaste"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1092463147949-sd7va2j810q3ial7fok0qd3m8dm1b3hq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDv1-4_BUkMzQP-sYiM250oOkbfIBN4uiE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1092463147949-e534c59aff2sivrr88gfgiavuk54kcbd.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1092463147949-oile2p0pq147tohf1s82ed8qo6pjk9bv.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.apretaste.apretaste.apretaste"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1092463147949:android:54a8b1e602a7aef670ff24",
+        "android_client_info": {
+          "package_name": "com.apretaste.apretaste"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1092463147949-sd7va2j810q3ial7fok0qd3m8dm1b3hq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDv1-4_BUkMzQP-sYiM250oOkbfIBN4uiE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1092463147949-e534c59aff2sivrr88gfgiavuk54kcbd.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1092463147949-oile2p0pq147tohf1s82ed8qo6pjk9bv.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.apretaste.apretaste.apretaste"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
