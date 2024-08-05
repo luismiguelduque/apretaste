@@ -13,6 +13,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 // ignore: depend_on_referenced_packages
 import 'package:path/path.dart' as p;
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../screens/screens.dart';
 import '../../blocs/blocs.dart';
@@ -171,6 +172,17 @@ class _HomeScreenState extends State<HomeScreen> {
               const OnMirrorStatusChanged(MirrorStatus.ready)
             );
           }),
+          onNavigationRequest: (request) {
+            if(request.url.contains("mailto:")) {
+              _launchUrl(request.url);
+              return NavigationDecision.prevent;
+            }
+            else if (request.url.contains("tel:")) {
+              _launchUrl(request.url);
+              return NavigationDecision.prevent;
+            }
+            return NavigationDecision.navigate;
+          },
         ),
       )..addJavaScriptChannel(
         'TokenService',
@@ -256,6 +268,13 @@ class _HomeScreenState extends State<HomeScreen> {
       return uploadingImage;
     } on PlatformException catch(e) {
       throw Exception(['pickImage', e,]);
+    }
+  }
+
+  Future<void> _launchUrl(url) async {
+    final Uri parsedUrl = Uri.parse(url);
+    if (!await launchUrl(parsedUrl)) {
+      throw Exception('Could not launch $parsedUrl');
     }
   }
 }
