@@ -14,6 +14,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 // ignore: depend_on_referenced_packages
 import 'package:path/path.dart' as p;
 import 'package:url_launcher/url_launcher.dart';
+// import 'package:device_info_plus/device_info_plus.dart';
 
 import '../../screens/screens.dart';
 import '../../blocs/blocs.dart';
@@ -161,30 +162,31 @@ class _HomeScreenState extends State<HomeScreen> {
   void _initWebView() async {
     _mirror = context.read<MirrorsBloc>().state.preferredMirror??'';
     await Future.delayed(const Duration(microseconds: 1000));
+    late NavigationDelegate navigationDelegate  = NavigationDelegate(
+      onPageFinished: (url) => setState((){
+        context.read<MirrorsBloc>().add(
+          const OnMirrorStatusChanged(MirrorStatus.ready)
+        );
+      }),
+      onNavigationRequest: (request) {
+        if(request.url.contains("mailto:")) {
+          _launchUrl(request.url);
+          return NavigationDecision.prevent;
+        }
+        else if (request.url.contains("tel:")) {
+          _launchUrl(request.url);
+          return NavigationDecision.prevent;
+        }
+        return NavigationDecision.navigate;
+      },
+    );
     _controller = WebViewController()
       ..enableZoom(false)
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setBackgroundColor(const Color(0x00000000))
-      ..setNavigationDelegate(
-        NavigationDelegate(
-          onPageFinished: (url) => setState((){
-            context.read<MirrorsBloc>().add(
-              const OnMirrorStatusChanged(MirrorStatus.ready)
-            );
-          }),
-          onNavigationRequest: (request) {
-            if(request.url.contains("mailto:")) {
-              _launchUrl(request.url);
-              return NavigationDecision.prevent;
-            }
-            else if (request.url.contains("tel:")) {
-              _launchUrl(request.url);
-              return NavigationDecision.prevent;
-            }
-            return NavigationDecision.navigate;
-          },
-        ),
-      )..addJavaScriptChannel(
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..setNavigationDelegate(navigationDelegate)
+      ..addJavaScriptChannel(
         'TokenService',
         onMessageReceived: (JavaScriptMessage jsMessage){
           context.read<AuthBloc>().add(OnTokenReceivedEvent(jsMessage.message));
@@ -277,4 +279,15 @@ class _HomeScreenState extends State<HomeScreen> {
       throw Exception('Could not launch $parsedUrl');
     }
   }
+
+  // Future<String?> _getId() async {
+  //   var deviceInfo = DeviceInfoPlugin();
+  //   if (Platform.isIOS) {
+  //     var iosDeviceInfo = await deviceInfo.iosInfo;
+  //     return iosDeviceInfo.identifierForVendor;
+  //   } else if(Platform.isAndroid) {
+  //     var androidDeviceInfo = await deviceInfo.androidInfo;
+  //     return androidDeviceInfo.id;
+  //   }
+  // }
 }
