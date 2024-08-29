@@ -14,7 +14,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 // ignore: depend_on_referenced_packages
 import 'package:path/path.dart' as p;
 import 'package:url_launcher/url_launcher.dart';
-// import 'package:device_info_plus/device_info_plus.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 
 import '../../screens/screens.dart';
 import '../../blocs/blocs.dart';
@@ -23,7 +23,7 @@ import '../services/services.dart';
 import './partials/no_internet_dialog.dart';
 import './partials/new_mirror_dialog.dart';
 import './partials/searching_dialog.dart';
-import 'partials/no_mirror.dart';
+import './partials/no_mirror.dart';
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await PreferencesService().initPrefs();
@@ -51,7 +51,6 @@ class _HomeScreenState extends State<HomeScreen> {
   String token = '';
   String _mirror = '';
   String _fcmtoken = '';
-  String _deepLink = '';
   String _params = '';
   File? uploadingImage;
 
@@ -66,10 +65,9 @@ class _HomeScreenState extends State<HomeScreen> {
     if(!_isLoaded){
       packageInfo = await PackageInfo.fromPlatform();
       await Future.delayed(const Duration(milliseconds: 2000));
-      _deepLink = getIt<PreferencesService>().deepLink;
       final osType = Platform.isAndroid ? 'android' : 'ios';
       token = (await _storage.read(key: "token"))??'';
-      _params = '?app_name=apretaste&app_os_type=$osType&app_version=${packageInfo.version}&token=${token.toString()}&$_deepLink';
+      _params = '?app_name=apretaste&app_os_type=$osType&app_version=${packageInfo.version}&token=${token.toString()}';
       setState(() { _allowDeveloperMode = false; });
       // ignore: use_build_context_synchronously
       if(!context.read<MirrorsBloc>().state.developerMode){
@@ -180,6 +178,7 @@ class _HomeScreenState extends State<HomeScreen> {
         return NavigationDecision.navigate;
       },
     );
+    final deepLink = getIt<PreferencesService>().deepLink;
     _controller = WebViewController()
       ..enableZoom(false)
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
@@ -221,10 +220,12 @@ class _HomeScreenState extends State<HomeScreen> {
           Share.share('${sharing.text} ${sharing.link}');
         }
       )..loadRequest(
-        Uri.parse('https://$_mirror$_params'),
+        Uri.parse('https://$_mirror$deepLink$_params'),
       );
     _webViewInitialized = true;
     getIt<PreferencesService>().deepLink = '';
+    final identifier = await _getId();
+    _controller.runJavaScript("window.saveAppDeviceIdentifier('$identifier')");
   }
 
   void _initNotifications(){
@@ -238,11 +239,10 @@ class _HomeScreenState extends State<HomeScreen> {
       provisional: false,
       sound: true,
     );
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {});
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {
-      _deepLink = message.data['link'];
+      getIt<PreferencesService>().deepLink = message.data['link'];
       setState(() {
-        _controller.loadRequest(Uri.parse('https://$_mirror$_deepLink'));
+        _controller.loadRequest(Uri.parse('https://$_mirror${message.data['link']}'));
       });
     });
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
@@ -280,14 +280,15 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  // Future<String?> _getId() async {
-  //   var deviceInfo = DeviceInfoPlugin();
-  //   if (Platform.isIOS) {
-  //     var iosDeviceInfo = await deviceInfo.iosInfo;
-  //     return iosDeviceInfo.identifierForVendor;
-  //   } else if(Platform.isAndroid) {
-  //     var androidDeviceInfo = await deviceInfo.androidInfo;
-  //     return androidDeviceInfo.id;
-  //   }
-  // }
+  Future<String?> _getId() async {
+    var deviceInfo = DeviceInfoPlugin();
+    if (Platform.isIOS) {
+      var iosDeviceInfo = await deviceInfo.iosInfo;
+      return iosDeviceInfo.identifierForVendor;
+    } else if(Platform.isAndroid) {
+      var androidDeviceInfo = await deviceInfo.androidInfo;
+      return androidDeviceInfo.id;
+    }
+    return "";
+  }
 }
